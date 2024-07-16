@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDOSOL.ME REFERAL CODE</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let intervalId;
+
+        async function fetchData(refCode) {
+            const response = await axios.get(`http://localhost:3000/api/${refCode}`);
+            return response.data.totalItem;
+        }
+
+        async function updateData() {
+            const refCodes = document.getElementById('refCodes').value.split(',').map(code => code.trim());
+            const promises = refCodes.map(refCode => fetchData(refCode));
+
+            const totalItems = await Promise.all(promises);
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            totalItems.forEach((totalItem, index) => {
+                const row = document.createElement('tr');
+                const refCodeCell = document.createElement('td');
+                const totalItemCell = document.createElement('td');
+                
+                refCodeCell.innerText = refCodes[index];
+                totalItemCell.innerText = totalItem;
+                
+                row.appendChild(refCodeCell);
+                row.appendChild(totalItemCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function startFetching() {
+            updateData();
+            intervalId = setInterval(updateData, 5000);
+        }
+
+        function stopFetching() {
+            clearInterval(intervalId);
+        }
+
+        window.onload = () => {
+            document.getElementById('submitBtn').addEventListener('click', startFetching);
+            document.getElementById('stopBtn').addEventListener('click', stopFetching);
+        };
+    </script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">API Data Fetch</h1>
+            <div class="field">
+                <label class="label">Enter Ref Codes (separated by commas)</label>
+                <div class="control">
+                    <input class="input" type="text" id="refCodes" placeholder="718,759,687,381,569" value="718,759,687,381,569">
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="button is-primary" id="submitBtn">Submit</button>
+                <button class="button is-danger" id="stopBtn">Stop</button>
+            </div>
+            <table class="table is-striped is-bordered is-hoverable">
+                <thead>
+                    <tr>
+                        <th>Ref Code</th>
+                        <th>Total Item</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+</body>
+</html>
