@@ -10,7 +10,7 @@
         let intervalId;
 
         async function fetchData(refCode) {
-            const response = await axios.get(`http://localhost:3000/api/${refCode}`);
+            const response = await axios.get(`https://idosolme.vercel.app/api/${refCode}`);
             return response.data.totalItem;
         }
 
